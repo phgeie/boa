@@ -1,0 +1,13 @@
+p: Project = input;
+TryCatchCount: output sum[string] of int;
+
+visit(p, visitor {
+    before node: Statement -> {
+        if (node.kind == StatementKind.TRY) {
+            TryCatchCount[p.project_url] << 1;
+        }
+        foreach (i: int; node.statements[i])
+            visit(node.statements[i]);
+        stop;
+    }
+});
