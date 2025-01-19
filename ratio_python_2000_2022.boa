@@ -1,0 +1,30 @@
+p: Project = input;
+
+ratio: output mean[string][int] of float;
+date: string;
+cnt := visitor {
+    before node: Statement -> {
+        if(node.kind == StatementKind.TRY)
+            ratio[p.name][int(date)] << 1;
+        else if(node.kind == StatementKind.WITH)
+            ratio[p.name][int(date)] << 1;
+        else 
+            ratio[p.name][int(date)] << 0;
+        
+    }
+};
+            
+visit(p, visitor {
+    before n: CodeRepository -> {
+        for(year: int = 2000; year <= 2022; year++){
+            date = string(year);
+		    snapshot := getsnapshot(n, time("December 31, "+ date + ", 11:59:59 PM PDT"));
+		    if (len(snapshot) > 0){
+		        foreach (i: int; def(snapshot[i])) {
+			       visit(snapshot[i], cnt);
+		        }
+		    }
+        }
+		stop;
+	}
+});

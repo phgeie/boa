@@ -2,9 +2,6 @@
 import pandas as pd
 import scipy.stats as stats
 import matplotlib.pyplot as plt
-import numpy as np
-import math
-
 
 def readSample(filename,title='',sampleSize=0):
     #dataDirectory = 'C:\\Users\\Diehl\\Desktop\\Vorlesungen\\FST\\BOA\\'
@@ -20,7 +17,7 @@ def readSample(filename,title='',sampleSize=0):
                      usecols=['Project', 'Ratio']
                      )
     if sampleSize>0:
-        df = df.sample(sampleSize, random_state=1)  # feste seed zum besseren Vergleich
+        df = df.sample(sampleSize, random_state=1)
     df.info()
     df.boxplot(column=['Ratio'], grid=False)
     df.hist(column=['Ratio'], grid=False)
@@ -56,10 +53,22 @@ def main():
         print('nicht statistisch signifikant')
 
     mean_diff = pythonSample['Ratio'].mean() - javaSample['Ratio'].mean()
-    pooled_std = math.sqrt(((pythonSample['Ratio'].var() + javaSample['Ratio'].var()) / 2))
+    pooled_std = ((pythonSample['Ratio'].std() ** 2 + javaSample['Ratio'].std() ** 2) / 2) ** 0.5
     cohens_d = mean_diff / pooled_std
 
-    print('Cohen\'s d: '+ str(cohens_d))
+    print('Cohen\'s d: ' + str(cohens_d))
+
+    size = 1000
+    while size > 0:
+        pythonSampleSize = pythonSample.sample(size)
+        javaSampleSize = javaSample.sample(size)
+        stat, p = stats.mannwhitneyu(javaSampleSize['Ratio'], pythonSampleSize['Ratio'])
+        if p >= 0.01:
+            print('nicht signifikant ab Size: ' + str(size))
+            break
+        size -= 1
+    if size == 0:
+        print('Keine Schranke')
 
     return
 
